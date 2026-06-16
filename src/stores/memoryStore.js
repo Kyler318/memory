@@ -161,8 +161,16 @@ export const useMemoryStore = defineStore('memories', () => {
   }
 
   function setFilter(year, tag) {
-    activeYear.value = year
-    activeTag.value = tag
+    if (year !== null && activeYear.value === year) {
+      activeYear.value = null
+      activeTag.value = null
+    } else if (tag !== null && activeTag.value === tag) {
+      activeYear.value = null
+      activeTag.value = null
+    } else {
+      activeYear.value = year
+      activeTag.value = tag
+    }
   }
 
   return {

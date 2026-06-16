@@ -47,7 +47,7 @@
       </div>
     </template>
 
-    <Transition v-else name="view-switch" mode="out-in">
+    <Transition v-else name="view-switch" mode="out-in" @after-enter="onViewEnter">
       <!-- Masonry Grid -->
       <div v-if="store.viewMode === 'masonry'" key="masonry">
         <div v-if="store.filtered.length" class="masonry-grid py-4">
@@ -159,6 +159,10 @@ function setupObserver() {
     { threshold: 0.12 }
   )
   document.querySelectorAll('.timeline-item').forEach(el => observer.observe(el))
+}
+
+function onViewEnter() {
+  if (store.viewMode === 'timeline') setupObserver()
 }
 
 watch(() => store.viewMode, (val) => {

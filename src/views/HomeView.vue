@@ -47,55 +47,57 @@
       </div>
     </template>
 
-    <!-- Masonry Grid -->
-    <template v-else-if="store.viewMode === 'masonry'">
-      <div v-if="store.filtered.length" class="masonry-grid py-4">
-        <div
-          v-for="(memory, i) in store.filtered"
-          :key="memory.id"
-          class="masonry-item"
-          :style="{ animationDelay: `${Math.min(i, 7) * 80}ms` }"
-        >
-          <MemoryCard
-            :memory="memory"
-            @theater="openTheater"
-            @celebrate="celebrate"
-          />
-        </div>
-      </div>
-      <EmptyState v-else />
-    </template>
-
-    <!-- Timeline -->
-    <template v-else>
-      <div v-if="store.filtered.length" class="relative pt-2">
-        <!-- Vertical line -->
-        <div class="absolute left-4 md:left-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-amber-400/60 via-amber-400/20 to-transparent" />
-
-        <div class="space-y-10">
+    <Transition v-else name="view-switch" mode="out-in">
+      <!-- Masonry Grid -->
+      <div v-if="store.viewMode === 'masonry'" key="masonry">
+        <div v-if="store.filtered.length" class="masonry-grid py-4">
           <div
             v-for="(memory, i) in store.filtered"
             :key="memory.id"
-            class="timeline-item relative flex items-start gap-6"
-            :class="i % 2 === 0 ? 'md:flex-row' : 'md:flex-row-reverse'"
+            class="masonry-item"
+            :style="{ animationDelay: `${Math.min(i, 7) * 80}ms` }"
           >
-            <!-- Dot -->
-            <div class="absolute left-4 md:left-1/2 w-3 h-3 rounded-full bg-amber-400 -translate-x-1.5 md:-translate-x-1.5 mt-8 ring-4 ring-warm-50 z-10" />
+            <MemoryCard
+              :memory="memory"
+              @theater="openTheater"
+              @celebrate="celebrate"
+            />
+          </div>
+        </div>
+        <EmptyState v-else />
+      </div>
 
-            <div class="hidden md:block w-1/2" />
+      <!-- Timeline -->
+      <div v-else key="timeline">
+        <div v-if="store.filtered.length" class="relative pt-2">
+          <!-- Vertical line -->
+          <div class="absolute left-4 md:left-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-amber-400/60 via-amber-400/20 to-transparent" />
 
-            <div class="pl-12 md:pl-0 md:w-1/2" :class="i % 2 === 0 ? 'md:pr-8' : 'md:pl-8'">
-              <MemoryCard
-                :memory="memory"
-                @theater="openTheater"
-                @celebrate="celebrate"
-              />
+          <div class="space-y-10">
+            <div
+              v-for="(memory, i) in store.filtered"
+              :key="memory.id"
+              class="timeline-item relative flex items-start gap-6"
+              :class="i % 2 === 0 ? 'md:flex-row' : 'md:flex-row-reverse'"
+            >
+              <!-- Dot -->
+              <div class="absolute left-4 md:left-1/2 w-3 h-3 rounded-full bg-amber-400 -translate-x-1.5 md:-translate-x-1.5 mt-8 ring-4 ring-warm-50 z-10" />
+
+              <div class="hidden md:block w-1/2" />
+
+              <div class="pl-12 md:pl-0 md:w-1/2" :class="i % 2 === 0 ? 'md:pr-8' : 'md:pl-8'">
+                <MemoryCard
+                  :memory="memory"
+                  @theater="openTheater"
+                  @celebrate="celebrate"
+                />
+              </div>
             </div>
           </div>
         </div>
+        <EmptyState v-else />
       </div>
-      <EmptyState v-else />
-    </template>
+    </Transition>
 
     <!-- Mobile spacer -->
     <div class="md:hidden h-24" />
@@ -176,6 +178,21 @@ onMounted(() => {
 
 onUnmounted(() => observer?.disconnect())
 </script>
+
+<style scoped>
+.view-switch-enter-active,
+.view-switch-leave-active {
+  transition: opacity 0.22s ease, transform 0.22s ease;
+}
+.view-switch-enter-from {
+  opacity: 0;
+  transform: translateY(10px);
+}
+.view-switch-leave-to {
+  opacity: 0;
+  transform: translateY(-10px);
+}
+</style>
 
 <script>
 const EmptyState = {

@@ -1,0 +1,86 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background-color: #faf8f4;
+    color: #1c1917;
+  }
+
+  ::-webkit-scrollbar { width: 5px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #d6cfc5; border-radius: 99px; }
+  ::-webkit-scrollbar-thumb:hover { background: #c0b8ac; }
+
+  input, textarea {
+    @apply bg-transparent outline-none;
+  }
+}
+
+@layer components {
+  /* Masonry CSS columns layout */
+  .masonry-grid {
+    column-count: 1;
+    column-gap: 1rem;
+  }
+  @media (min-width: 640px)  { .masonry-grid { column-count: 2; } }
+  @media (min-width: 1024px) { .masonry-grid { column-count: 3; } }
+
+  .masonry-item {
+    break-inside: avoid;
+    margin-bottom: 1rem;
+    display: block;
+  }
+
+  /* Glass effect — light */
+  .glass {
+    backdrop-filter: blur(16px) saturate(180%);
+    -webkit-backdrop-filter: blur(16px) saturate(180%);
+  }
+
+  /* Gradient text — amber to rose */
+  .grad-text {
+    background: linear-gradient(135deg, #d97706 0%, #e11d48 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Accent fill — amber to orange */
+  .grad-border {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+  }
+
+  /* Card hover glow */
+  .card-glow:hover {
+    box-shadow: 0 0 0 1px rgba(217, 119, 6, 0.15),
+                0 8px 32px rgba(217, 119, 6, 0.08);
+  }
+
+  /* Video card overlay */
+  .media-overlay {
+    background: linear-gradient(to top, rgba(28,25,23,0.85) 0%, rgba(28,25,23,0.15) 50%, transparent 100%);
+  }
+
+  /* Stagger animation delay utilities */
+  .delay-75  { animation-delay: 75ms; }
+  .delay-150 { animation-delay: 150ms; }
+  .delay-225 { animation-delay: 225ms; }
+  .delay-300 { animation-delay: 300ms; }
+  .delay-375 { animation-delay: 375ms; }
+  .delay-450 { animation-delay: 450ms; }
+  .delay-525 { animation-delay: 525ms; }
+  .delay-600 { animation-delay: 600ms; }
+}
+
+/* Transition for view switch */
+.page-enter-active,
+.page-leave-active {
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+.page-enter-from { opacity: 0; transform: translateY(8px); }
+.page-leave-to   { opacity: 0; transform: translateY(-8px); }

@@ -3,9 +3,9 @@ import { ref, computed } from 'vue'
 import dayjs from 'dayjs'
 import { db, storage } from '@/firebase'
 import {
-  collection, getDocs, addDoc, updateDoc, doc, query, orderBy,
+  collection, getDocs, addDoc, updateDoc, deleteDoc, doc, query, orderBy,
 } from 'firebase/firestore'
-import { ref as storageRef, uploadBytesResumable, uploadBytes, getDownloadURL } from 'firebase/storage'
+import { ref as storageRef, uploadBytesResumable, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage'
 
 export const useMemoryStore = defineStore('memories', () => {
   const memories = ref([])
@@ -21,6 +21,7 @@ export const useMemoryStore = defineStore('memories', () => {
       id: d.id,
       likes: 0,
       comments: [],
+      mediaFiles: [],
       ...d.data(),
       liked: likedSet.value.has(d.id),
     }))
@@ -41,15 +42,41 @@ export const useMemoryStore = defineStore('memories', () => {
     })
   }
 
-  async function addMemory(data, file, thumbnailBlob, onProgress) {
-    const mediaUrl = file ? await uploadFile(file, onProgress) : data.mediaUrl
+  async function uploadThumbnail(blob) {
+    const ref = storageRef(storage, `thumbnails/${Date.now()}_${Math.random().toString(36).slice(2)}.jpg`)
+    await uploadBytes(ref, blob)
+    return getDownloadURL(ref)
+  }
 
-    let thumbnailUrl = mediaUrl
-    if (thumbnailBlob) {
-      const thumbRef = storageRef(storage, `thumbnails/${Date.now()}_thumb.jpg`)
-      await uploadBytes(thumbRef, thumbnailBlob)
-      thumbnailUrl = await getDownloadURL(thumbRef)
+  // files: File[]  thumbnailBlobs: (Blob|null)[]
+  async function addMemory(data, files, thumbnailBlobs = [], onProgress) {
+    const filesArray = Array.isArray(files) ? files : (files ? [files] : [])
+    const thumbsArray = Array.isArray(thumbnailBlobs) ? thumbnailBlobs : [thumbnailBlobs]
+    const total = filesArray.length
+
+    const mediaFiles = []
+
+    for (let i = 0; i < filesArray.length; i++) {
+      const file = filesArray[i]
+      const type = file.type.startsWith('video') ? 'video' : 'image'
+
+      onProgress?.(Math.round((i / total) * 90), `正在上傳第 ${i + 1}/${total} 張...`)
+
+      const url = await uploadFile(file, (p) => {
+        onProgress?.(Math.round(((i + p / 100) / total) * 90), `正在上傳第 ${i + 1}/${total} 張...`)
+      })
+
+      let thumbnailUrl = url
+      const thumbBlob = thumbsArray[i]
+      if (thumbBlob) {
+        thumbnailUrl = await uploadThumbnail(thumbBlob)
+      }
+
+      mediaFiles.push({ url, thumbnailUrl, type })
     }
+
+    const primary = mediaFiles[0] || {}
+    const isAlbum = mediaFiles.length > 1
 
     const payload = {
       title: data.title,
@@ -57,17 +84,42 @@ export const useMemoryStore = defineStore('memories', () => {
       date: data.date,
       location: data.location,
       tags: data.location ? [data.location] : [],
-      mediaType: data.mediaType,
-      mediaUrl,
-      thumbnailUrl,
+      mediaType: isAlbum ? 'album' : (primary.type || 'image'),
+      mediaUrl: primary.url || '',
+      thumbnailUrl: primary.thumbnailUrl || '',
+      mediaFiles,
       likes: 0,
       comments: [],
       createdAt: new Date().toISOString(),
     }
+
+    onProgress?.(95, '儲存資料...')
     const docRef = await addDoc(collection(db, 'memories'), payload)
     const newMemory = { id: docRef.id, ...payload, liked: false }
     memories.value.unshift(newMemory)
+    onProgress?.(100, '完成！')
     return newMemory
+  }
+
+  async function deleteMemory(id) {
+    const m = memories.value.find(m => m.id === id)
+    if (!m) return
+
+    const deleteStorageFile = async (url) => {
+      if (!url || !url.includes('firebasestorage')) return
+      try {
+        const path = decodeURIComponent(url.split('/o/')[1].split('?')[0])
+        await deleteObject(storageRef(storage, path))
+      } catch {}
+    }
+
+    const allFiles = m.mediaFiles?.length
+      ? m.mediaFiles.flatMap(f => [f.url, f.url !== f.thumbnailUrl ? f.thumbnailUrl : null].filter(Boolean))
+      : [m.mediaUrl, m.thumbnailUrl !== m.mediaUrl ? m.thumbnailUrl : null].filter(Boolean)
+
+    await Promise.all(allFiles.map(deleteStorageFile))
+    await deleteDoc(doc(db, 'memories', id))
+    memories.value = memories.value.filter(m => m.id !== id)
   }
 
   function toggleLike(id) {
@@ -116,6 +168,6 @@ export const useMemoryStore = defineStore('memories', () => {
   return {
     memories, filtered, allYears, allTags,
     activeYear, activeTag, viewMode,
-    loadMemories, getById, toggleLike, addComment, addMemory, setFilter,
+    loadMemories, getById, toggleLike, addComment, addMemory, deleteMemory, setFilter,
   }
 })

@@ -77,6 +77,17 @@
   .delay-600 { animation-delay: 600ms; }
 }
 
+/* Timeline scroll animation */
+.timeline-item {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+.timeline-item.timeline-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
 /* Transition for view switch */
 .page-enter-active,
 .page-leave-active {

@@ -2,8 +2,8 @@
   <aside class="fixed top-0 left-0 h-full w-64 bg-warm-100 border-r border-warm-300 flex flex-col z-30">
     <!-- Logo -->
     <div class="px-6 pt-8 pb-6 border-b border-warm-300">
-      <h1 class="grad-text text-2xl font-bold tracking-tight">回憶</h1>
-      <p class="text-stone-400 text-xs mt-0.5">Memories · 珍藏每一刻</p>
+      <h1 class="grad-text text-2xl font-bold tracking-tight">肥仔霖回鄉記</h1>
+      <p class="text-stone-400 text-xs mt-0.5">夢開始的地方</p>
     </div>
 
     <!-- Nav -->

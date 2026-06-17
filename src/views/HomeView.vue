@@ -69,7 +69,7 @@
 
       <!-- Timeline -->
       <div v-else key="timeline">
-        <div v-if="store.filtered.length" class="relative pt-2">
+        <div v-if="store.filtered.length" class="relative pt-2 md:max-w-3xl md:mx-auto">
           <!-- Vertical line -->
           <div class="absolute left-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-amber-400/60 via-amber-400/20 to-transparent" />
 
@@ -77,26 +77,30 @@
             <div
               v-for="(memory, i) in store.filtered"
               :key="memory.id"
-              class="timeline-item relative flex items-start"
-              :class="i % 2 === 0 ? 'flex-row' : 'flex-row-reverse'"
+              class="timeline-item relative"
+              :class="i % 2 === 0
+                ? 'pl-[calc(50%+12px)] md:pl-[calc(50%+16px)]'
+                : 'pr-[calc(50%+12px)] md:pr-[calc(50%+16px)]'"
             >
               <!-- Dot -->
               <div class="absolute left-1/2 -translate-x-1/2 w-3 h-3 rounded-full bg-amber-400 mt-5 ring-4 ring-warm-50 z-10" />
 
-              <!-- Spacer (opposite side) -->
-              <div class="w-1/2 shrink-0" />
-
-              <!-- Card -->
+              <!-- Date label on opposite side -->
               <div
-                class="w-1/2 shrink-0"
-                :class="i % 2 === 0 ? 'pl-3 md:pl-0 md:pr-6' : 'pr-3 md:pr-0 md:pl-6'"
+                class="absolute top-3 text-xs text-stone-400 font-medium leading-snug"
+                :class="i % 2 === 0
+                  ? 'right-[calc(50%+20px)] text-right'
+                  : 'left-[calc(50%+20px)] text-left'"
               >
-                <MemoryCard
-                  :memory="memory"
-                  @theater="openTheater"
-                  @celebrate="celebrate"
-                />
+                <div class="text-stone-600 font-semibold">{{ dayjs(memory.date).format('YYYY') }}</div>
+                <div>{{ dayjs(memory.date).format('M月D日') }}</div>
               </div>
+
+              <MemoryCard
+                :memory="memory"
+                @theater="openTheater"
+                @celebrate="celebrate"
+              />
             </div>
           </div>
         </div>
@@ -121,6 +125,7 @@ import { useMemoryStore } from '@/stores/memoryStore'
 import MemoryCard from '@/components/MemoryCard.vue'
 import TheaterModal from '@/components/TheaterModal.vue'
 import SkeletonCard from '@/components/SkeletonCard.vue'
+import dayjs from 'dayjs'
 
 defineEmits(['upload'])
 

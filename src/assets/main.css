@@ -24,11 +24,11 @@
 @layer components {
   /* Masonry CSS columns layout */
   .masonry-grid {
-    column-count: 1;
-    column-gap: 1rem;
+    column-count: 2;
+    column-gap: 0.5rem;
   }
-  @media (min-width: 640px)  { .masonry-grid { column-count: 2; } }
-  @media (min-width: 1024px) { .masonry-grid { column-count: 3; } }
+  @media (min-width: 640px)  { .masonry-grid { column-count: 2; column-gap: 1rem; } }
+  @media (min-width: 1024px) { .masonry-grid { column-count: 3; column-gap: 1rem; } }
 
   .masonry-item {
     break-inside: avoid;

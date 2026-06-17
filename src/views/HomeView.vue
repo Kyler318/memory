@@ -71,21 +71,26 @@
       <div v-else key="timeline">
         <div v-if="store.filtered.length" class="relative pt-2">
           <!-- Vertical line -->
-          <div class="absolute left-4 md:left-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-amber-400/60 via-amber-400/20 to-transparent" />
+          <div class="absolute left-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-amber-400/60 via-amber-400/20 to-transparent" />
 
-          <div class="space-y-10">
+          <div class="space-y-6">
             <div
               v-for="(memory, i) in store.filtered"
               :key="memory.id"
-              class="timeline-item relative flex items-start gap-6"
-              :class="i % 2 === 0 ? 'md:flex-row' : 'md:flex-row-reverse'"
+              class="timeline-item relative flex items-start"
+              :class="i % 2 === 0 ? 'flex-row' : 'flex-row-reverse'"
             >
               <!-- Dot -->
-              <div class="absolute left-4 md:left-1/2 w-3 h-3 rounded-full bg-amber-400 -translate-x-1.5 md:-translate-x-1.5 mt-8 ring-4 ring-warm-50 z-10" />
+              <div class="absolute left-1/2 -translate-x-1/2 w-3 h-3 rounded-full bg-amber-400 mt-5 ring-4 ring-warm-50 z-10" />
 
-              <div class="hidden md:block w-1/2" />
+              <!-- Spacer (opposite side) -->
+              <div class="w-1/2 shrink-0" />
 
-              <div class="pl-12 md:pl-0 md:w-1/2" :class="i % 2 === 0 ? 'md:pr-8' : 'md:pl-8'">
+              <!-- Card -->
+              <div
+                class="w-1/2 shrink-0"
+                :class="i % 2 === 0 ? 'pl-3 md:pl-0 md:pr-6' : 'pr-3 md:pr-0 md:pl-6'"
+              >
                 <MemoryCard
                   :memory="memory"
                   @theater="openTheater"
